@@ -9,12 +9,38 @@ interface DashboardScreenProps {
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ victories, onDebtCircleClick }) => {
   const percentage = 65;
-  const size = 220; // Slightly smaller for better fit
+  const size = 220;
   const strokeWidth = 16;
   const center = size / 2;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
+
+  const handleShare = async () => {
+    const shareData = {
+      title: '破债者 - 助你优雅上岸',
+      text: `我在破债者记录我的上岸历程，已经还清了 ${percentage}% 的债务！离自由更近一步，一起加油吧！`,
+      url: window.location.origin,
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Share failed:', err);
+        }
+      }
+    } else {
+      // Fallback for browsers that don't support native share
+      try {
+        await navigator.clipboard.writeText(shareData.text);
+        alert('分享文案已复制到剪贴板，快去发给好友吧！\n\n' + shareData.text);
+      } catch (err) {
+        alert(shareData.text);
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8 pt-8 px-6 font-display animate-in fade-in duration-700 pb-36">
@@ -23,8 +49,12 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ victories, onDebtCirc
           <span className="material-symbols-outlined text-gray-800 dark:text-white text-xl">arrow_back_ios_new</span>
         </button>
         <h2 className="text-xl font-black text-gray-900 dark:text-white">债务进度</h2>
-        <button className="w-10 h-10 flex items-center justify-center rounded-full active:bg-gray-100 dark:active:bg-white/10 transition-colors">
-          <span className="material-symbols-outlined text-gray-800 dark:text-white text-xl">share</span>
+        <button 
+          onClick={handleShare}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 dark:bg-white/5 active:bg-primary/20 hover:bg-gray-100 dark:hover:bg-white/10 transition-all group"
+          aria-label="分享"
+        >
+          <span className="material-symbols-outlined text-gray-800 dark:text-white text-xl group-hover:text-primary transition-colors">share</span>
         </button>
       </header>
 
@@ -38,7 +68,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ victories, onDebtCirc
           {/* Background Shadow Glow */}
           <div className="absolute inset-0 bg-primary/5 rounded-full blur-[40px] opacity-50"></div>
           
-          {/* Inner Depth Ball - Matches visual exactly */}
+          {/* Inner Depth Ball */}
           <div 
             className="absolute rounded-full bg-white dark:bg-[#1a1f26] shadow-[inset_0_4px_16px_rgba(0,0,0,0.03),0_12px_40px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_4px_16px_rgba(0,0,0,0.3),0_12px_40px_rgba(0,0,0,0.5)] z-0"
             style={{ width: (radius * 2) - strokeWidth + 4, height: (radius * 2) - strokeWidth + 4 }}
@@ -50,7 +80,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ victories, onDebtCirc
             viewBox={`0 0 ${size} ${size}`}
             className="absolute transform -rotate-90 drop-shadow-[0_0_10px_rgba(43,238,124,0.1)] z-10"
           >
-            {/* Background Track Circle - Perfectly centered */}
+            {/* Background Track Circle */}
             <circle
               cx={center}
               cy={center}
@@ -60,7 +90,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ victories, onDebtCirc
               strokeWidth={strokeWidth}
               className="text-gray-100 dark:text-gray-800"
             />
-            {/* Foreground Progress Arc - Perfectly overlapping */}
+            {/* Foreground Progress Arc */}
             <circle
               cx={center}
               cy={center}

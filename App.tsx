@@ -126,7 +126,13 @@ const App: React.FC = () => {
       case AppScreen.WALL:
         return <WallScreen sparks={sparks} onUpdateSparks={handleUpdateSparks} />;
       case AppScreen.PROFILE:
-        return <ProfileScreen onLogout={() => setCurrentScreen(AppScreen.LOGIN)} />;
+        return (
+          <ProfileScreen 
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+            onLogout={() => setCurrentScreen(AppScreen.LOGIN)} 
+          />
+        );
       case AppScreen.REPAYMENT:
         return (
           <RepaymentScreen 
@@ -275,14 +281,16 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <button 
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className="fixed top-4 right-4 z-[60] w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-gray-800 dark:text-white"
-      >
-        <span className="material-symbols-outlined text-sm">
-          {isDarkMode ? 'light_mode' : 'dark_mode'}
-        </span>
-      </button>
+      {currentScreen !== AppScreen.PROFILE && (
+        <button 
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="fixed top-4 right-4 z-[60] w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-gray-800 dark:text-white"
+        >
+          <span className="material-symbols-outlined text-sm">
+            {isDarkMode ? 'light_mode' : 'dark_mode'}
+          </span>
+        </button>
+      )}
     </div>
   );
 };

@@ -1,13 +1,21 @@
+
 import React, { useState } from 'react';
 
 interface ProfileScreenProps {
   onLogout: () => void;
+  isDarkMode?: boolean;
+  setIsDarkMode?: (val: boolean) => void;
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, isDarkMode, setIsDarkMode }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isMembershipModalOpen, setIsMembershipModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<'invite' | 'password' | 'privacy' | 'terms' | null>(null);
+
+  // Mock settings state
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const menuItems = [
     { id: 'badges', icon: 'military_tech', label: '我的勋章', detail: '已解锁 5 个' },
@@ -57,6 +65,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
   const closeModal = () => {
     setIsMembershipModalOpen(false);
+    setIsSettingsModalOpen(false);
     setActiveModal(null);
   };
 
@@ -98,7 +107,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
     <div className="flex flex-col gap-6 pt-8 px-6 font-display bg-[#f6f8f7] dark:bg-background-dark min-h-screen relative">
       <header className="flex items-center justify-between mb-2">
         <h2 className="text-2xl font-extrabold text-gray-800 dark:text-white">个人中心</h2>
-        <span className="material-symbols-outlined cursor-pointer text-gray-400">settings</span>
+        <button 
+          onClick={() => setIsSettingsModalOpen(true)}
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-white/5 active:bg-gray-100 dark:active:bg-white/10 transition-colors shadow-sm"
+        >
+          <span className="material-symbols-outlined text-gray-400 dark:text-gray-500">settings</span>
+        </button>
       </header>
 
       {/* Hero Section */}
@@ -189,13 +203,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
       </div>
 
       {/* Pop-up Modals Container */}
-      {(isMembershipModalOpen || activeModal) && (
+      {(isMembershipModalOpen || isSettingsModalOpen || activeModal) && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in">
           <div className="w-full max-w-[480px] bg-white dark:bg-[#1a1f26] rounded-t-[40px] p-8 shadow-2xl animate-in slide-in-from-bottom duration-500 max-h-[85vh] overflow-y-auto no-scrollbar relative">
             
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-extrabold dark:text-white">
+              <h3 className="text-2xl font-extrabold text-gray-900 dark:text-white">
                 {isMembershipModalOpen && '会员权益'}
+                {isSettingsModalOpen && '应用设置'}
                 {activeModal === 'invite' && '邀请好友'}
                 {activeModal === 'password' && '修改密码'}
                 {activeModal === 'privacy' && '隐私政策'}
@@ -208,6 +223,73 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
+
+            {/* Settings Modal Content */}
+            {isSettingsModalOpen && (
+              <div className="flex flex-col gap-6 mb-4 pb-6">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between p-5 rounded-[24px] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 flex items-center justify-center shadow-sm">
+                        <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">dark_mode</span>
+                      </div>
+                      <span className="text-sm font-bold text-gray-800 dark:text-white">深色模式</span>
+                    </div>
+                    <button 
+                      onClick={() => setIsDarkMode?.(!isDarkMode)}
+                      className={`w-12 h-6 rounded-full transition-colors relative shadow-inner ${isDarkMode ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${isDarkMode ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-5 rounded-[24px] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 flex items-center justify-center shadow-sm">
+                        <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">notifications</span>
+                      </div>
+                      <span className="text-sm font-bold text-gray-800 dark:text-white">推送通知</span>
+                    </div>
+                    <button 
+                      onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                      className={`w-12 h-6 rounded-full transition-colors relative shadow-inner ${notificationsEnabled ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${notificationsEnabled ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-5 rounded-[24px] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 flex items-center justify-center shadow-sm">
+                        <span className="material-symbols-outlined text-gray-600 dark:text-gray-400">volume_up</span>
+                      </div>
+                      <span className="text-sm font-bold text-gray-800 dark:text-white">声音特效</span>
+                    </div>
+                    <button 
+                      onClick={() => setSoundEnabled(!soundEnabled)}
+                      className={`w-12 h-6 rounded-full transition-colors relative shadow-inner ${soundEnabled ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${soundEnabled ? 'left-7' : 'left-1'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button className="w-full py-4 px-6 rounded-2xl border border-gray-100 dark:border-white/5 text-sm font-bold text-gray-600 dark:text-gray-300 text-left flex items-center justify-between group">
+                    <span>清理缓存</span>
+                    <span className="text-xs text-gray-400">2.4 MB</span>
+                  </button>
+                  <button className="w-full py-4 px-6 rounded-2xl border border-gray-100 dark:border-white/5 text-sm font-bold text-gray-600 dark:text-gray-300 text-left flex items-center justify-between group">
+                    <span>检查更新</span>
+                    <span className="material-symbols-outlined text-xs">chevron_right</span>
+                  </button>
+                </div>
+
+                <p className="text-center text-[10px] text-gray-400 uppercase tracking-widest mt-4">
+                  DebtBreaker v1.2.0 • Build 20240501
+                </p>
+              </div>
+            )}
 
             {/* Membership Modal Content */}
             {isMembershipModalOpen && (
